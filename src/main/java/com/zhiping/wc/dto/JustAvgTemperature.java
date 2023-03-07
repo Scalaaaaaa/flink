@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
-public class AvgTemperature {
-    private Long id;
+public class JustAvgTemperature {
     private BigDecimal avgTemperature;
 }
