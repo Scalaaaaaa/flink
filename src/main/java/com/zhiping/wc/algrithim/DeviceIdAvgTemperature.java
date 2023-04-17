@@ -17,8 +17,8 @@ public class DeviceIdAvgTemperature  implements AggregateFunction<Temperature,
 
     @Override
     public Tuple3<Long, BigDecimal, Integer> add(Temperature temperature, Tuple3<Long, BigDecimal, Integer> acc) {
-        acc.f0 = temperature.getDeviceId();
-        acc.f1 = acc.f1.add(temperature.getTemperature());
+        acc.f0 = temperature.getDeviceId().longValue();
+        acc.f1 = acc.f1.add(new BigDecimal(temperature.getTemperature()));
         acc.f2 = acc.f2 + 1;
         return acc;
     }
