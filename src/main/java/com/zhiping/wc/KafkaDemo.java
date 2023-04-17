@@ -63,10 +63,8 @@ public class KafkaDemo {
         // tuple3: 设备id, 总温度, 事件个数(数据个数)
         SingleOutputStreamOperator<DeviceAvgTemperature> aggregate = windowedStream
                 .aggregate(new DeviceIdAvgTemperature());
-        aggregate.print("aggregate:");
         SingleOutputStreamOperator<String> resultStream = aggregate
             .map(item -> new ObjectMapper().writer().writeValueAsString(item));
-        resultStream.print("windowPrint:");
         resultStream
                 .addSink(new FlinkKafkaProducer010<String>("yiyunmint:9092","temperatureResult", new SimpleStringSchema()));
         env.execute();
