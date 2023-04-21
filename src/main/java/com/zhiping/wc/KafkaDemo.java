@@ -1,10 +1,12 @@
 package com.zhiping.wc;
 
+import com.alibaba.fastjson.JSON;
 import com.zhiping.wc.algrithim.AllAvgTemperature;
 import com.zhiping.wc.algrithim.DeviceIdAvgTemperature;
 import com.zhiping.wc.dto.DeviceAvgTemperature;
 import com.zhiping.wc.dto.JustAvgTemperature;
 import com.zhiping.wc.dto.Temperature;
+import com.zhiping.wc.dto.TemperatureWrapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -25,6 +27,7 @@ import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class KafkaDemo {
     public static void main(String[] args) throws Exception {
@@ -35,6 +38,7 @@ public class KafkaDemo {
         properties.setProperty("group.id", "shangfei");
         properties.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        //Pattern pattern = Pattern.compile("avgWarn-.*-direct");
         // 定义kafka数据源
         FlinkKafkaConsumer010<String> consumer = new FlinkKafkaConsumer010<>("temperature", new SimpleStringSchema(), properties);
         consumer.setStartFromLatest();
@@ -46,10 +50,10 @@ public class KafkaDemo {
         // 将kafka数据源 添加到环境, 生成数据流对象, 以数据处理时间作为时间戳来分窗口
         DataStream<String> sourceStream = env
                 .addSource(consumer);
-        //sourceStream.print("directPrint:");
+        sourceStream.print("directPrint:");
         // 开窗:5分钟一个窗口
         KeyedStream<Temperature, Long> keyedStream = sourceStream
-                .map(item -> new ObjectMapper().readValue(item, Temperature.class))
+                .map(item -> JSON.parseObject(item, TemperatureWrapper.class).getMsg())
                 .assignTimestampsAndWatermarks(WatermarkStrategy.<Temperature>forBoundedOutOfOrderness(Duration.ofMillis(10))
                         .withTimestampAssigner(new SerializableTimestampAssigner<Temperature>() {
                     @Override
@@ -63,10 +67,11 @@ public class KafkaDemo {
         // tuple3: 设备id, 总温度, 事件个数(数据个数)
         SingleOutputStreamOperator<DeviceAvgTemperature> aggregate = windowedStream
                 .aggregate(new DeviceIdAvgTemperature());
+        aggregate.print("avgTemp:");
         SingleOutputStreamOperator<String> resultStream = aggregate
             .map(item -> new ObjectMapper().writer().writeValueAsString(item));
         resultStream
-                .addSink(new FlinkKafkaProducer010<String>("yiyunmint:9092","temperatureResult", new SimpleStringSchema()));
+                .addSink(new FlinkKafkaProducer010<String>("yiyunmint:9092","toWebsocket", new SimpleStringSchema()));
         env.execute();
     }
 }

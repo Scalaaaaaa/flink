@@ -25,7 +25,8 @@ public class DeviceIdAvgTemperature  implements AggregateFunction<Temperature,
 
     @Override
     public DeviceAvgTemperature getResult(Tuple3<Long, BigDecimal, Integer> acc) {
-        return new DeviceAvgTemperature(acc.f0,acc.f1.divide(new BigDecimal(acc.f2),2, RoundingMode.HALF_UP));
+        BigDecimal temRes = acc.f1.divide(new BigDecimal(acc.f2), 2, RoundingMode.HALF_UP);
+        return new DeviceAvgTemperature(acc.f0, temRes,"user","{\"deviceId\":"+acc.f0+",\"avgTemperature\":"+temRes+"}");
     }
 
     @Override

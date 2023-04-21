@@ -11,4 +11,7 @@ public class DeviceAvgTemperature {
     private Long id;
 
     private BigDecimal avgTemperature;
+
+    private String websocketId;
+    private String content;
 }
