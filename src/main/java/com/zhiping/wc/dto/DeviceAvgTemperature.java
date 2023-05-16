@@ -2,6 +2,7 @@ package com.zhiping.wc.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.flink.api.java.utils.ParameterTool;
 
 import java.math.BigDecimal;
 
@@ -14,4 +15,5 @@ public class DeviceAvgTemperature {
 
     private String websocketId;
     private String content;
+
 }

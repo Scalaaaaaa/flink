@@ -16,7 +16,7 @@ public class AllAvgTemperature implements AggregateFunction<Temperature, Tuple2<
 
     @Override
     public Tuple2<BigDecimal, Integer> add(Temperature temperature, Tuple2<BigDecimal, Integer> acc) {
-        return Tuple2.of(acc.f0.add(new BigDecimal(temperature.getTemperature())), acc.f1 + 1);
+        return Tuple2.of(acc.f0.add(temperature.getTmp()), acc.f1 + 1);
     }
 
     @Override

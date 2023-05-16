@@ -2,7 +2,7 @@ package com.zhiping.wc;
 
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 
 import java.util.Properties;
 
@@ -16,7 +16,7 @@ public class ConsumberOrigin {
         properties.setProperty("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         // 定义kafka数据源
-        FlinkKafkaConsumer010<String> consumer = new FlinkKafkaConsumer010<>("temperature", new SimpleStringSchema(), properties);
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("temperature", new SimpleStringSchema(), properties);
         consumer.setStartFromLatest();
         env.addSource(consumer).print("receivedMsg:");
         env.execute();

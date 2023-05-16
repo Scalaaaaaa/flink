@@ -9,17 +9,14 @@ import java.math.BigDecimal;
 @ToString
 public class Temperature {
     private Integer deviceId;
-    private Integer deviceType;
-    private Double temperature;
+    private BigDecimal tmp;
     private Long ts;
 
     @Override
     public String toString() {
         return "Temperature{" +
                 "deviceId=" + deviceId +
-                ", deviceType=" + deviceType +
-                ", temperature=" + temperature +
+                ", temperature=" + tmp +
                 '}';
     }
-
 }

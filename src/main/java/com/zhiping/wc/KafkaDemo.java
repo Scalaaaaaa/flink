@@ -1,16 +1,11 @@
 package com.zhiping.wc;
-
 import com.alibaba.fastjson.JSON;
-import com.zhiping.wc.algrithim.AllAvgTemperature;
 import com.zhiping.wc.algrithim.DeviceIdAvgTemperature;
 import com.zhiping.wc.dto.DeviceAvgTemperature;
-import com.zhiping.wc.dto.JustAvgTemperature;
 import com.zhiping.wc.dto.Temperature;
 import com.zhiping.wc.dto.TemperatureWrapper;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -18,16 +13,13 @@ import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.datastream.WindowedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
-import java.io.Serializable;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import java.time.Duration;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 public class KafkaDemo {
     public static void main(String[] args) throws Exception {
@@ -40,7 +32,7 @@ public class KafkaDemo {
         properties.setProperty("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         //Pattern pattern = Pattern.compile("avgWarn-.*-direct");
         // 定义kafka数据源
-        FlinkKafkaConsumer010<String> consumer = new FlinkKafkaConsumer010<>("temperature", new SimpleStringSchema(), properties);
+        FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>("temperature", new SimpleStringSchema(), properties);
         consumer.setStartFromLatest();
         //consumer.
         /*env.getConfig().setRestartStrategy(
@@ -71,7 +63,7 @@ public class KafkaDemo {
         SingleOutputStreamOperator<String> resultStream = aggregate
             .map(item -> new ObjectMapper().writer().writeValueAsString(item));
         resultStream
-                .addSink(new FlinkKafkaProducer010<String>("yiyunmint:9092","toWebsocket", new SimpleStringSchema()));
+                .addSink(new FlinkKafkaProducer<String>("yiyunmint:9092","toWebsocket", new SimpleStringSchema()));
         env.execute();
     }
 }
